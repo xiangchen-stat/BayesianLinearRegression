@@ -11,9 +11,9 @@
 
 <meta name="author" content="Xiang Chen, Sudipto Banerjee" />
 
-<meta name="date" content="2023-01-13" />
+<meta name="date" content="2022-12-18" />
 
-<title>Bayesian Linear Regression: the Updating Form of the Posterior Distributions</title>
+<title>Bayesian Linear Regression</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1573,48 +1573,153 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Bayesian Linear Regression: the Updating
-Form of the Posterior Distributions</h1>
+<h1 class="title toc-ignore">Bayesian Linear Regression</h1>
 <h4 class="author">Xiang Chen, Sudipto Banerjee</h4>
-<h4 class="date">2023-01-13</h4>
+<h4 class="date">2022-12-18</h4>
 
 </div>
 
 
-<div id="posterior-distribution-of-normal-inverse-gamma-prior" class="section level2">
-<h2>1. Posterior distribution of Normal Inverse-Gamma prior</h2>
-<p>Assume <span class="math inline">\(y \sim N\left( X \beta, \sigma^{2}
-V\right)\)</span>, where <span class="math inline">\(V\)</span> is known
-and <span class="math inline">\(\left\{\beta,
-\sigma^{2}\right\}\)</span> is unknown. We use a Normal Inverse-Gamma
-(NIG) prior: <span class="math display">\[
-\begin{align}
-P(\beta, \sigma^{2}) &amp;= NIG \left(\beta, \sigma^{2} \mid m_{0},
-M_{0}, a_{0}, b_{0}\right) \\
+<p>We denote <span class="math inline">\(U\)</span> as unknown
+parameters and <span class="math inline">\(K\)</span> as known
+parameters. The Bayes’ Theorem gives us the posterior distribution of
+unknown parameters given the known parameters: <span class="math display">\[ P(U \mid K) \propto P(U) \cdot P(K \mid
+U)\]</span></p>
+<p>The <span class="math inline">\(P(U)\)</span> is prior and <span class="math inline">\(P(K|U)\)</span> is likelihood. Let <span class="math inline">\(K = \left\{y_{n \times 1}, X_{n \times p}
+\right\}\)</span> and assume <span class="math inline">\(y \sim N\left(
+X \beta, \sigma^{2} V\right)\)</span>, where <span class="math inline">\(V\)</span> is known and <span class="math inline">\(U = \left\{\beta, \sigma^{2}\right\}\)</span> is
+unknown.</p>
+<div id="likelihood" class="section level2">
+<h2>1. Likelihood</h2>
+<p>The likelihood is given by:</p>
+<p><span class="math display">\[\begin{align}
+P(K \mid U)=N\left(y \mid X \beta, \sigma^{2} V\right)
+\end{align}\]</span></p>
+</div>
+<div id="joint-distribution-of-normal-inverse-gamma-prior" class="section level2">
+<h2>2. Joint distribution of Normal Inverse-Gamma prior</h2>
+<p>We use a Normal Inverse-Gamma (NIG) prior:</p>
+<p><span class="math display">\[\begin{align}
+    P(U) &amp;= P(\beta, \sigma^{2}) \\
+    &amp;= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0},
+b_{0}\right) \\
     &amp;= IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \cdot
 N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \\
-\end{align}
-\]</span></p>
-<p>The posterior distribution is given by:</p>
+    &amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1}
+e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2
+\pi)^{\frac{p}{2}}\left|\sigma^{2} M_{0}\right|^{\frac{1}{2}}}
+e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+    &amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1}
+e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi
+\sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(Q(x, m, M)=(x-m)^{\top} M^{-1}
+(x-m)\)</span></p>
+<p>Note: <span class="math inline">\(X \sim Gamma(\alpha,
+\beta)\)</span>, the density function of <span class="math inline">\(X\)</span> is <span class="math inline">\(f(x)=\frac{\beta^{\alpha}}{\Gamma(\alpha)}
+x^{\alpha-1} e^{-\beta x}\)</span>. Let <span class="math inline">\(Y=\frac{1}{X} \sim IG(\alpha, \beta)\)</span>, the
+density function of <span class="math inline">\(Y\)</span> is <span class="math inline">\(f(y)=\frac{\beta^{\alpha}}{\Gamma(\alpha)}
+x^{-\alpha-1} e^{-\frac{\beta}{x}}\)</span>.</p>
+</div>
+<div id="marginal-distribution-of-normal-inverse-gamma-prior" class="section level2">
+<h2>3. Marginal distribution of Normal Inverse-Gamma prior</h2>
+<p>As for marginal priors, we can can get it by integration.</p>
+<p><span class="math display">\[\begin{align}
+    P\left(\sigma^{2} \right) &amp;= \int NIG\left(\beta, \sigma^{2}
+\mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\beta \\
+    &amp;=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \int N\left(\beta
+\mid m_{0}, \sigma^{2} M_{0}\right) \  d\beta \\
+    &amp;=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right)
+\end{align}\]</span></p>
+<p><span class="math display">\[\begin{align}
+P(\beta ) &amp;=\int NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0},
+a_{0}, b_{0}\right) \  d\sigma^{2} \\
+&amp;= \int \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1}
+e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi
+\sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)}
+\  d\sigma^{2} \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2
+\pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1}
+e^{-\frac{1}{\sigma^{2}}(b_{0}+\frac{1}{2} Q \left(\beta, m_{0},
+M_{0}\right))} \  d\sigma^{2} \\
+&amp; \quad (\text{let } u = \frac{1}{\sigma^2},
+\left|d\sigma^{2}\right|=\frac{1}{u^2} d u) \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2
+\pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+u^{a_{0}+\frac{p}{2}+1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0},
+M_{0}\right)) u } \frac{1}{u^2} \  du \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2
+\pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+u^{a_{0}+\frac{p}{2}-1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0},
+M_{0}\right)) u} \  du \\
+&amp; \quad (\text{by Gamma integral function:} \int x^{\alpha - 1}
+exp^{-\beta x} dx = \frac{\Gamma(\alpha)}{\beta^{\alpha}}) \\
+&amp;= \frac{b_{0}^{a_{0}} }{\Gamma\left(a_{0}\right)(2
+\pi)^\frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}}
+\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left[b_{0}+\frac{1}{2}
+Q(\beta,m_0,M_0)\right]^{\left(a_{0}+\frac{p}{2}\right)}} \\
+&amp; =
+\frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right)}{\Gamma\left(a_{0}\right)(2
+\pi)^ \frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}}
+\left[b_0(1+\frac{1}{2 b_0}
+Q(\beta,m_0,M_0))\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; = \frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right) b_0^{-
+\left( a_0+\frac{p}{2}\right)}}{\Gamma\left(a_{0}\right)(2 \pi)^
+\frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}}
+\left[1+\frac{1}{2 b_0} \left(\beta-m_{0}\right){\top}
+M_{0}^{-1}\left(\beta-m_{0}\right)
+\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 \pi
+\right)^{\frac{p}{2}} b_{0}^{\frac{p}{2}}
+\Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}}\left[1+\frac{1}{2 b_{0}}
+\left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right)
+\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}
+{\left(2 \pi \right)^{\frac{p}{2}}\left(a_{0} \cdot
+\frac{b_{0}}{a_{0}}\right)^{\frac{p}{2}}
+\Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}} \left[1+\frac{1}{2 a_{0}
+\cdot \frac{b_{0}}{a_{0}}} \left(\beta-m_{0}\right){\top}
+M_{0}^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)}\\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 a_{0}
+\pi\right)^{\frac{p}{2}}
+\Gamma\left(a_{0}\right)\left|\frac{b_{0}}{a_{0}}
+M\right|^{\frac{1}{2}}}\left[1+\frac{1}{2 a_{0}}
+\left(\beta-m_{0}\right)^{\top}\left(\frac{b_{0}}{a_{0}}
+M_{0}\right)^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)}
+\\
+&amp; =t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \;
+\end{align}\]</span></p>
+<p>Note: the density of multivariate t-distribution is:</p>
 <p><span class="math display">\[
-\boxed{
-\begin{align}\label{eq:post_dist}
-P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto
-\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1}
-e^{-\frac{b_{0}}{\sigma^{2}}}
-e^{-\frac{1}{2 \sigma^{2}} [Q \left(\beta, m_{0}, M_{0}\right)+Q
-\left(y, X \beta, V\right)]}\;
-\end{align}
-}
+t_v(\mu, \Sigma)=\frac{\Gamma\left(\frac{v+p}{2}\right)}{(v
+\pi)^{\frac{p}{2}}
+\Gamma\left(\frac{v}{2}\right)  |\Sigma|^{\frac{1}{2}}}\left[1+\frac{1}{v}(x-\mu)^{\top}
+\Sigma^{-1}(x-\mu)\right]^{-\frac{v+p}{2}}
 \]</span></p>
-<p>
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-Click to show and hide details </a>
-</p>
-<div id="collapseExample1" class="collapse">
-<div class="card card-body">
-<span class="math display">\[
-\begin{align}
+<p>In summary, the marginal priors are:</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(\sigma^2) &amp; = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0},
+a_{0}, b_{0}\right) \  d\beta=I G\left(\sigma^{2} \mid a_{0},
+b_{0}\right) \\
+P(\beta) &amp; = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0},
+a_{0}, b_{0}\right) \  d\sigma^{2}=t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="joint-posterior-distribution" class="section level2">
+<h2>4. Joint posterior distribution</h2>
+<p>The posterior distribution is given by:</p>
+<p><span class="math display">\[\begin{align}\label{eq:post_dist}
 P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto NIG\left(\beta,
 \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \cdot N\left(y \mid X
 \beta, \sigma^{2} V\right) \nonumber\\
@@ -1631,31 +1736,11 @@ m_{0}, M_{0}\right)}
 e^{-\frac{1}{2 \sigma^{2}} Q \left(y, X \beta, V\right)} \nonumber\\
 &amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1}
 e^{-\frac{b_{0}}{\sigma^{2}}}
-e^{-\frac{1}{2 \sigma^{2}} [Q \left(\beta, m_{0}, M_{0}\right)+Q
-\left(y, X \beta, V\right)]}\;
-\end{align}
-\]</span>
-</div>
-</div>
-<p>where <span class="math inline">\(Q(x, m, M)=(x-m)^{\top} M^{-1}
-(x-m)\)</span>.</p>
-<p>We can further simplify that: <span class="math display">\[
-\boxed{
-\begin{align}\label{eq:multivariate_completion_square}
-Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right)
-  &amp;= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})
-+c^{\ast}\;
-\end{align}
-}
-\]</span></p>
-<p>
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">
-Click to show and hide details </a>
-</p>
-<div id="collapseExample2" class="collapse">
-<div class="card card-body">
-<span class="math display">\[
-\begin{align}
+e^{-\frac{1}{2 \sigma^{2}} (Q \left(\beta, m_{0}, M_{0}\right)+Q
+\left(y, X \beta, V\right))}\;
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}\label{eq:multivariate_completion_square}
 Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right) &amp;=
 (\beta - m_{0})^{\top}M_{0}^{-1}(\beta - m_{0}) + (y -
 X\beta)^{\top}V^{-1}(y - X\beta)\; \nonumber\\
@@ -1673,208 +1758,147 @@ c\nonumber\\
 m_{1}^{\top}M_{1}m_{1} +c \nonumber\\   
   &amp;= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})
 +c^{\ast}\;
-\end{align}
-\]</span>
-</div>
-</div>
+\end{align}\]</span></p>
 <p>where <span class="math inline">\(M_{1}\)</span> is a symmetric
 positive definite matrix, <span class="math inline">\(m_{1}\)</span> is
 a vector, and <span class="math inline">\(c\)</span> &amp; <span class="math inline">\(c^{\ast}\)</span> are scalars given by:</p>
-<p><span class="math display">\[
-\begin{align}
-M_{1}^{-1} &amp;= M_{0}^{-1} + X^{\top}V^{-1}X\; \\
-m_{1} &amp;= M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\; \\
-c &amp;= m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y\; \\
+<p><span class="math display">\[\begin{align}
+M_{1}^{-1} &amp;= M_{0}^{-1} + X^{\top}V^{-1}X\;; \\
+m_{1} &amp;= M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\;; \\
+c &amp;= m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y\;; \\
   c^{\ast} &amp;= c - m^{\top}Mm = m_{0}^{\top} M_{0}^{-1}m_{0} +
-y^{\top}V^{-1}y - m_{1}^{\top}M_{1}m_{1}\;
-\end{align}
-\]</span></p>
+y^{\top}V^{-1}y - m_{1}^{\top}M_{1}m_{1}\; .
+\end{align}\]</span></p>
 <p>Note: <span class="math inline">\(M_{1}\)</span>, <span class="math inline">\(m_{1}\)</span> and <span class="math inline">\(c\)</span> do not depend upon <span class="math inline">\(\beta\)</span>.</p>
 <p>Then, we have:</p>
-<p><span class="math display">\[
-\boxed{
-\begin{align}
-P\left(\beta, \sigma^{2} \mid y\right)
-&amp; \propto NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1},
-b_{1}\right) \;
-\end{align}
-}
-\]</span></p>
-<p>
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-Click to show and hide details </a>
-</p>
-<div id="collapseExample3" class="collapse">
-<div class="card card-body">
-<span class="math display">\[
-  \begin{align}
-  P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto
 \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1}
 e^{-\frac{b_{0}}{\sigma^{2}}}
-  e^{-\frac{1}{2 \sigma^{2}} ((\beta -
-M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) +c^{\ast})}\\
-  &amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1}
+e^{-\frac{1}{2 \sigma^{2}} ((\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta
+- M_{1}m_{1}) +c^{\ast})}\\
+&amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1}
 e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}}
-  e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta
-- M_{1}m_{1})}\\
-  &amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1}
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta -
+M_{1}m_{1})}\\
+&amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1}
 e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}}
-  (\frac{1}{\sigma^2})^{\frac{p}{2}}
-  e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta
-- M_{1}m_{1})}\\
-  &amp;= IG\left(\sigma^{2} \mid a_{0}+\frac{p}{2},
+(\frac{1}{\sigma^2})^{\frac{p}{2}}
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta -
+M_{1}m_{1})}\\
+&amp;= IG\left(\sigma^{2} \mid a_{0}+\frac{p}{2},
 b_{0}+\frac{c^{\ast}}{2} \right) \cdot N\left(\beta \mid M_{1}m_{1},
 \sigma^{2} M_{1}\right) \\
-  &amp;= IG\left(\sigma^{2} \mid a_{1}, b_{1} \right) \cdot N\left(\beta
+&amp;= IG\left(\sigma^{2} \mid a_{1}, b_{1} \right) \cdot N\left(\beta
 \mid M_{1}m_{1}, \sigma^{2} M_{1}\right) \\
-  &amp;= NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1},
+&amp;= NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1},
 b_{1}\right) \;
-  \end{align}
-  \]</span>
-</div>
-</div>
+\end{align}\]</span></p>
 <p>where</p>
-<p><span class="math display">\[
-\begin{align}
-m_{1}&amp;=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \; \\
-M_{1}^{-1} &amp;=M_{0}^{-1}+X^{\top} V^{-1} X \; \\
-a_{1}&amp;=a_{0}+\frac{p}{2} \; \\
+<p><span class="math display">\[\begin{align}
+M_{1}^{-1} &amp;=M_{0}^{-1}+X^{\top} V^{-1} X \;; \\
+m_{1}&amp;=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&amp;=a_{0}+\frac{p}{2} \;; \\
 b_{1}&amp;=b_{0}+\frac{c^{\ast}}{2}= b_{0}+\frac{1}{2}\left(m_{0}^{\top}
-M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;
-\end{align}
-\]</span></p>
+M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;.
+\end{align}\]</span></p>
 </div>
-<div id="updating-form-of-the-posterior-distribution" class="section level2">
-<h2>2. Updating Form of the Posterior Distribution</h2>
-<p>To calculate <span class="math inline">\(M_1\)</span>, we utilize the
-well-known <a href="https://en.wikipedia.org/wiki/Woodbury_matrix_identity">Sherman-Woodbury-Morrison
-identity</a> in matrix algebra: <span class="math display">\[\begin{equation}\label{ShermanWoodburyMorrison}
-\left(A + BDC\right)^{-1} = A^{-1} -
-A^{-1}B\left(D^{-1}+CA^{-1}B\right)^{-1}CA^{-1}
-\end{equation}\]</span> where <span class="math inline">\(A\)</span> and
-<span class="math inline">\(D\)</span> are square matrices that are
-invertible and <span class="math inline">\(B\)</span> and <span class="math inline">\(C\)</span> are rectangular (square if <span class="math inline">\(A\)</span> and <span class="math inline">\(D\)</span> have the same dimensions) matrices such
-that the multiplications are well-defined. This identity is easily
-verified by multiplying the right hand side with <span class="math inline">\(A + BDC\)</span> and simplifying to reduce it to
-the identity matrix.</p>
+<div id="marginal-posterior-distribution" class="section level2">
+<h2>5. Marginal posterior distribution</h2>
+<p>From results in marginal priors, the marginal posterior distributions
+can be easily get by updating corresponding parameters:</p>
 <p><span class="math display">\[
 \begin{aligned}
-M_1 &amp; = (M_{0}^{-1} + X^{\top}V^{-1}X)^{-1} \\
-&amp; = M_0-M_0 X^{\top}\left(V+X M_0 X^{\top}\right)^{-1} X M_0 \\
-&amp; = M_0-M_0 X^{\top} Q^{-1} X M_0
+&amp;P\left(\sigma^{2} \mid y\right)=I G\left(\sigma^{2} \mid a_{1},
+b_{1}\right) \\
+&amp;P(\beta \mid y)=t_{2a_1}(M_1m_1, \frac{b_1}{a_1}M_1)
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(Q = V + X M_0 X^{\top}\)</span></p>
-<p>We can show that: <span class="math display">\[
-\boxed{
-\begin{align}
-M_1 m_1 &amp; =m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \;.
-\end{align}
-}
-\]</span></p>
-<p>
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">
-Click to show and hide details </a>
-</p>
-<div id="collapseExample4" class="collapse">
-<div class="card card-body">
-<span class="math display">\[\begin{align}
-  M_1 m_1 &amp; = \left(M_0^{-1}+X^{\top} V^{-1} X\right)^{-1} m_1 \\
-  &amp; = [M_0-M_0 X^{\top}\left(V+X M_0 X^{\top}\right)^{-1} X M_0]m_1
-\\
-  &amp; = (M_0-M_0 X^{\top} Q^{-1} X M_0) m_1 \\
-  &amp; = (M_0-M_0 X^{\top} Q^{-1} X M_0)(M_0^{-1} m_0+X^{\top} V^{-1}
-y) \\
-  &amp; = m_0+M_0 X^{\top} V^{-1} y-M_0 X^{\top} Q^{-1} X m_0 - M_0
-X^{\top} Q^{-1} X M_0 X^{\top} V^{-1} y \\
-  &amp; = m_0+M_0 X^{\top}\left(I-Q^{-1} X M_0 X^{\top}\right) V^{-1} y
-- M_0 X^{\top} Q^{-1} X m_0 \\
-  &amp; = m_0+M_0 X^{\top} Q^{-1}\left(Q-X M_0 X^{\top}\right)V^{-1} y -
-M_0 X^{\top} Q^{-1} X m_0 \\
-  &amp; \left(\text { since } Q=V+X M_0 X^{\top}\right) \\
-  &amp; = m_0+M_0 X^{\top} Q^{-1}(V) V^{-1} y-M_0 X^{\top} Q^{-1} X m_0
-\\
-  &amp; = m_0+M_0 X^{\top} Q^{-1} y-M_0 X^{\top} Q^{-1} X m_0 \\
-  &amp; = m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
-  \end{align}\]</span>
 </div>
+<div id="bayesian-prediction" class="section level2">
+<h2>6. Bayesian prediction</h2>
+<p>Let <span class="math inline">\(\tilde{y}\)</span> denote an <span class="math inline">\(\tilde{n}\times 1\)</span> vector of outcomes. We
+seek to predict it based upon predictors <span class="math inline">\(\tilde{X}\)</span>. Assume <span class="math inline">\(V=I_{n}\)</span>.</p>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)
+&amp;=P\left(\beta, \sigma^{2} \mid y\right) \cdot P\left(\tilde{y} \mid
+\beta, \sigma^{2}, y\right) \\
+&amp; \propto P\left(\beta, \sigma^{2}\right) \cdot P\left(y \mid \beta,
+\sigma^{2}\right) \cdot P\left(\tilde{y} \mid \beta, \sigma^{2},
+y\right) \\
+&amp;= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0},
+b_{0}\right)
+\cdot N\left(y \mid X \beta, \sigma^{2} I_{n}\right)
+\cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2}
+I_{\tilde{n}}\right) \\
+&amp;= NIG \left(\beta, \sigma^{2} \mid M_{1} m_{1}, M_{1}, a_{1},
+b_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2}
+I_{\tilde{n}}\right) \\
+&amp;= IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid M_{1}
+m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X}
+\beta, \sigma^{2} I_{\tilde{n}} \right) \;
+\end{align}\]</span></p>
+<p>Then we can calculate posterior predictive density <span class="math inline">\(P(\tilde{y} \mid y)\)</span> from <span class="math inline">\(P\left(\beta, \sigma^{2}, \tilde{y} \mid
+y\right)\)</span>:</p>
+<p><span class="math display">\[\begin{align}
+P(\tilde{y} \mid y)
+&amp;=\iint P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right) \  d\beta
+\  d\sigma^{2} \\
+&amp;=\iint IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid
+M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid
+\tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta
+\  d\sigma^{2} \\
+&amp;=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \int N\left(\beta \mid M_{1}
+m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X}
+\beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta \  d\sigma^{2} \\
+\end{align}\]</span></p>
+<p>As for <span class="math inline">\(\int N\left(\beta \mid M_{1}
+m_{1}, \sigma^{2} M_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X}
+\beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta\)</span>, we provide an
+easy way to derive it avoiding any integration at all. Note that we can
+write the above model as:</p>
+<p><span class="math display">\[\begin{align}
+\tilde{y} &amp;= \tilde{X} \beta + \tilde{\epsilon}, \text{ where }
+\tilde{\epsilon} \sim N(0,\sigma^2 I_{\tilde{n}}) \\
+\beta &amp;= M_{1} m_{1} + \epsilon_{\beta \mid y}, \text{ where }
+\epsilon_{\beta \mid y} \sim N(0,\sigma^2M_{1})
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(\tilde{\epsilon}\)</span> and <span class="math inline">\(\epsilon_{\beta \mid y}\)</span> are independent
+of each other. It then follows that</p>
+<p><span class="math display">\[\begin{align}
+\tilde{y} &amp;= \tilde{X} M_{1} m_{1} + \tilde{X} \epsilon_{\beta \mid
+y} + \tilde{\epsilon}
+\sim N(\tilde{X} M_{1} m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1}
+\tilde{X}^{\top}))
+\end{align}\]</span></p>
+<p>As a result:</p>
+<p><span class="math display">\[\begin{align}
+P(\tilde{y} \mid y)
+&amp;=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N(\tilde{X} M_{1}
+m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top}))
+\  d\sigma^{2} \\
+&amp;= t_{2a_1}(\tilde{X} M_1 m_1, \frac{b_1}{a_1}(I_{\tilde{n}} +
+\tilde{X} M_{1} \tilde{X}^{\top})) \;
+\end{align}\]</span></p>
 </div>
-<p>Furthermore, we can simplify that: <span class="math display">\[
-\boxed{
-\begin{align}
-m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} M_1 m_1 &amp; =
-\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \;.
-\end{align}
-}
-\]</span></p>
-<p>
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample5" role="button" aria-expanded="false" aria-controls="collapseExample5">
-Click to show and hide details </a>
-</p>
-<div id="collapseExample5" class="collapse">
-<div class="card card-body">
-<span class="math display">\[\begin{align}
-  m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} M_1 m_1 &amp; =
-m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} [m_0+M_0 X^{\top}
-Q^{-1} (y - X m_0)] \\
-  &amp; = m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} m_0 -
-m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
-  &amp; = m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y
--m_0^{\top}\left(M_0^{-1} m_0+X^{\top} V^{-1} y\right) \\
-  &amp; \qquad \qquad \qquad - m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X
-m_0\right) \\
-  &amp; = y^{\top} V^{-1} y-y^{\top} V^{-1} X m_0 - m_1^{\top} M_0
-X^{\top} Q^{-1}\left(y-X m_0\right) \\
-  &amp; = y^{\top} V^{-1}\left(y-X m_0 \right)-m_1^{\top} M_0 X^{\top}
-Q^{-1}\left(y-X m_0\right) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\underbrace{m_1^{\top} M_0
-X^{\top} Q^{-1}\left(y-X m_0\right)}_{\substack{\text { simplify from
-left to right }}} \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(M_0 m_1\right)^{\top}
-X^{\top} Q^{-1}\left(y-X m_0\right) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(m_0+M_0 X^{\top}
-V^{-1} y\right)^{\top} X^{\top} Q^{-1}\left(y-m_0\right) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(X m_0+X M_0 X^{\top}
-V^{-1} y\right)^{\top} Q^{-1}\left(y-X m_0\right)\\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -\left(Q^{-1} X
-m_0+Q^{-1}\left(X M_0 X^{\top}\right)V^{-1} y\right)\left(y-X m_0\right)
-\\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-[Q^{-1} X m_0+Q^{-1}(Q-V)
-V^{-1} y]^{\top}(y-X m_0) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -\left(Q^{-1} X m_0+V^{-1}
-y- Q^{-1} y \right)^{\top}\left(y-X m_0\right) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -[V^{-1} y+Q^{-1}\left(X
-m_0-y\right)]^{\top}\left(y-X m_0\right) \\
-  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-y^{\top} V^{-1}\left(y-X
-m_0\right) +\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \\
-  &amp; =\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \\
-  \end{align}\]</span>
+<div id="sampling-process" class="section level2">
+<h2>7. Sampling process</h2>
+<p>We can get the joint posterior density <span class="math inline">\(P\left(\beta, \sigma^{2}, \tilde{y} \mid
+y\right)\)</span> by sampling process:</p>
+<ol style="list-style-type: decimal">
+<li><p>Draw <span class="math inline">\(\hat{\sigma}_{(i)}^{2}\)</span>
+from <span class="math inline">\(I G\left(a_{1},
+b_{1}\right)\)</span></p></li>
+<li><p>Draw <span class="math inline">\(\hat{\beta}_{(i)}\)</span> from
+<span class="math inline">\(N\left(M_{1} m_{1}, \hat{\sigma}_{(i)}^{2}
+M_{1}\right)\)</span></p></li>
+<li><p>Draw <span class="math inline">\(\tilde{y}_{(i)}\)</span> from
+<span class="math inline">\(N\left(\tilde{X} \hat{\beta}_{(i)},
+\hat{\sigma}_{(i)}^{2}I_{\tilde{n}}\right)\)</span></p></li>
+</ol>
 </div>
-</div>
-<p>So, we get the following updating form of the posterior distribution
-from Bayesian Linear Regression:</p>
-<p><span class="math display">\[
-\boxed{
-\begin{aligned}
-P\left(\beta, \sigma^2 \mid y\right) &amp;\propto I G\left(\sigma^2 \mid
-a_0, b_0\right) N\left(\beta \mid m_0, \sigma^2 M_0\right) N(y \mid X
-\beta, \sigma^2 V)\\
-&amp; \propto I G\left(\sigma^2 \mid a_1, b_1\right) N\left(\beta \mid
-\tilde{m}_1, \sigma^2 \tilde{M}_1\right)\\
-\end{aligned}
-}
-\]</span> where,</p>
-<p><span class="math display">\[
-\begin{aligned}
-\tilde{m}_1 &amp; =M_1 m_1=m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right)
-\\
-\tilde{M}_1 &amp; =M_1=M_0-M_0 X^{\top} Q^{-1} X M_0 \\
-Q &amp; =V+X M_0 X^{\top} \\
-a_1 &amp; =a_0+\frac{p}{2} \\
-b_1 &amp; =b_0+\frac{1}{2}\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X
-m_0\right)
-\end{aligned}
-\]</span></p>
+<div id="example" class="section level2">
+<h2>8. Example</h2>
 </div>
 
 
