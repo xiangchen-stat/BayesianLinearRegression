@@ -1,0 +1,153 @@
+---
+title: "Bayesian Linear Regression Updater: Without Sherman-Woodbury-Morrison"
+author: "Xiang Chen, Sudipto Banerjee"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    # toc: true
+    # toc_float: true
+    # code_folding: hide
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Previously, we got the Bayesian Linear Regression Updater using [Sherman-Woodbury-Morrison identity](https://en.wikipedia.org/wiki/Woodbury_matriX_identity). Here, we will derive the results without resorting to it. The model is given by:
+\begin{align}
+& y=X \beta+\epsilon , \quad \epsilon \sim N\left(0, \sigma^2 V\right) ; \\
+& \beta=m_0+\omega , \quad \omega \sim N\left(0, \sigma^2 M_0\right) ; \\
+& \sigma^2 \sim I G\left(a_0, b_0\right) \;.
+\end{align}
+
+This corresponds to the posterior distribution:
+
+\begin{align}
+P\left(\beta, \sigma^2 \mid y\right) \propto I G\left(\sigma^2 \mid a_0, b_0\right) & \times N\left(\beta \mid m_0, \sigma^2 M_0\right) \times N\left(y \mid X \beta, \sigma^2 V\right) \;.
+\end{align}
+
+We will derive $P\left(\sigma^2 \mid y\right)$ and $P\left(\beta \mid \sigma^2, y\right)$ in a form that will reflect updates from the prior to the posterior. 
+
+Integrating out $\beta$ from the model is equivalent to substituting $\beta$ from its prior model. Thus, $P\left(y \mid \sigma^2\right)$ is derived simply from:
+\begin{align}
+y &=X \beta+\epsilon \\
+&=X\left(m_0+\omega\right)+\epsilon \\
+&=X m_0 + X \omega + \epsilon \\
+& =X m_0+ \eta \;, \\
+\end{align}
+
+where
+\begin{align}
+& \eta = X \omega + \epsilon \sim N\left(0, \sigma^2Q\right) \; ; \\
+& Q=X M_0 X^{\top}+V \; . \\
+\end{align}
+
+Therefore, 
+\begin{align}
+y \mid \sigma^2 \sim N\left(X m_0, \sigma^2 Q\right) \; .\\
+\end{align}
+
+The posterior distribution is given by: 
+\begin{align}
+P\left(\sigma^2 \mid y\right) & \propto P\left(\sigma^2\right) P\left(y \mid \sigma^2\right) \\
+& =I G\left(\sigma^2 \mid a_0, b_0\right) \times N\left(y \mid X m_0, \sigma^2 Q\right) \\
+& \propto\left(\frac{1}{\sigma^2}\right)^{a_0+1} e^{-\frac{b_0} {\sigma^2} \times\left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}} e^{-\frac{1}{2 \sigma^2}}\left(y-Xm_0\right)^{\top} Q^{-1}\left(y-Xm_0\right)} \\ 
+& \propto\left(\frac{1}{\sigma^2}\right)^{a_0+\frac{p}{2}+1} e^{-\frac{1}{\sigma^2}\left\{b_0+\frac{1}{2}\left(y-Xm_0\right)^{\top} Q^{-1}\left(y-Xm_0\right)\right.} \\
+& \propto IG \left(\sigma^2 \mid a_1, b_1\right) \; ,
+\end{align}
+
+where
+\begin{align} 
+& a_1 = a_0 + \frac{p}{2} ; \\
+& b_1 = b_0 + \frac{1}{2} (y-Xm_0)^{\top} Q^{-1} \left(y-Xm_0\right) \; .
+\end{align}
+
+Next, we turn to $P\left(\beta \mid \sigma^2, y\right)$.
+Note that
+$$
+\left[\begin{array}{l}
+y \\
+\beta
+\end{array}\right] \mid \sigma^2 \sim N\left(\left[\begin{array}{l}
+Xm_0 \\
+m_0
+\end{array}\right], \quad \sigma^2 \left[\begin{array}{cc}
+Q & X M_0 \\
+M_0 X^{\top} & M_0
+\end{array}\right]\right) \; .
+$$
+<p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample5" role="button" aria-expanded="false" aria-controls="collapseExample5">
+    Click to show and hide details
+  </a>
+</p>
+<div class="collapse" id="collapseExample5">
+  <div class="card card-body">
+  
+  where we have used the facts:
+  
+  $$
+  \begin{aligned}
+  & E[y \mid \sigma^2] = Xm_0 \; ;\\
+  & E[\beta \mid \sigma^2] = m_0 \; ; \\
+  & \operatorname{Var}\left(y \mid \sigma^2\right)=\sigma^2 Q \; ; \\ 
+  & \operatorname{Var}\left(\beta \mid \sigma^2\right)=\sigma^2 M_0 \; ; \\
+  \end{aligned}
+  $$
+  
+  $$
+  \begin{aligned}
+  \operatorname{Cov}\left(y, \beta \mid \sigma^2\right) &= \operatorname{Cov}\left(X \beta+\epsilon, \beta \mid \sigma^2\right) \\
+  & =\operatorname{Cov}\left(X\left(m_0+\omega\right)+\epsilon, m_0+\omega \mid \sigma^2\right) \\
+  & =\operatorname{Cov}\left(X \omega, \omega \mid \sigma^2\right) \\
+  & \quad \text {(Since } m_0 \text { is constant and } \operatorname{Cov}(\omega, \epsilon)=0) \\
+  & =\sigma^2 X M_0 \; .
+  \end{aligned}
+  $$
+
+  </div>
+</div>
+
+
+
+From the expression of a conditional distribution derived from a multivariate Gaussian, we obtain:
+$$
+\beta \mid \sigma^2, y \sim N\left(\tilde{m}_1, \sigma^2 \tilde{M}_1\right) \;,
+$$
+
+where
+\begin{align}
+& \tilde{m}_1=E\left[\beta \mid \sigma^2, y\right]=m_0+M_0 X^{\top} Q^{-1}\left(y-X{m_0}\right) \; ;\\
+& \tilde{M}_1=M_0-M_0 X^{\top} Q^{-1} X M_0 \; . \\
+\end{align}
+
+<p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample6" role="button" aria-expanded="false" aria-controls="collapseExample6">
+    Click to show and hide details
+  </a>
+</p>
+<div class="collapse" id="collapseExample6">
+  <div class="card card-body">
+  
+Note: 
+
+\begin{align}
+& \left[\begin{array}{l}
+X_1 \\
+X_2
+\end{array}\right] \sim N\left(\left[\begin{array}{l}
+\mu_1 \\
+\mu_2
+\end{array}\right],\left[\begin{array}{ll}
+\Sigma_{11} & \Sigma_{12} \\
+\Sigma_{21} & \Sigma_{22}
+\end{array}\right]\right) \text { with } \Sigma_{21} = \Sigma_{12}^{\top} \;, \\
+& \Rightarrow X_2 \mid X_1  \sim N\left(\mu_{2 \cdot 1}, \Sigma_{2 \cdot 1}\right) \;, \\
+& \text {where } \mu_{2 \cdot 1}= \mu_2+\Sigma_{21} \Sigma_{11}^{-1}\left(X_1-\mu_1\right) \text { and } \Sigma_{2 \cdot 1}=\Sigma_{22}-\Sigma_{21} \Sigma_{11}^{-1} \Sigma_{12} \;.
+\end{align}
+
+
+  </div>
+</div>
+
