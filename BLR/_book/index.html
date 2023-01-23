@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Bayesian Linear Regression</title>
+  <meta name="description" content="This is a tutorial for Bayesian Linear Regressione." />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Bayesian Linear Regression" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This is a tutorial for Bayesian Linear Regressione." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Bayesian Linear Regression" />
+  
+  <meta name="twitter:description" content="This is a tutorial for Bayesian Linear Regressione." />
+  
+
+<meta name="author" content="authors" />
+
+
+<meta name="date" content="2023-01-22" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+<link rel="next" href="updating-form-of-the-posterior-distribution.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Bayesian Linear Regression</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Basics of Bayesian linear regression</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#bayes-theorem"><i class="fa fa-check"></i><b>1.1</b> Bayes’ theorem</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#normal-inverse-gamma-nig-prior"><i class="fa fa-check"></i><b>1.2</b> Normal Inverse-Gamma (NIG) prior</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#joint-distribution-of-nig-prior"><i class="fa fa-check"></i><b>1.2.1</b> Joint distribution of NIG prior</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#marginal-distribution-of-nig-prior"><i class="fa fa-check"></i><b>1.2.2</b> Marginal distribution of NIG prior</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#posterior-distribution"><i class="fa fa-check"></i><b>1.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#bayesian-prediction"><i class="fa fa-check"></i><b>1.4</b> Bayesian prediction</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#sampling-process"><i class="fa fa-check"></i><b>1.5</b> Sampling process</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html"><i class="fa fa-check"></i><b>2</b> Updating form of the posterior distribution</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html#method-1-sherman-woodbury-morrison-identity"><i class="fa fa-check"></i><b>2.1</b> Method 1: Sherman-Woodbury-Morrison identity</a></li>
+<li class="chapter" data-level="2.2" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html#method-2-distribution-theory"><i class="fa fa-check"></i><b>2.2</b> Method 2: distribution theory</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Bayesian Linear Regression</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Bayesian Linear Regression</h1>
+<p class="author"><em>authors</em></p>
+<p class="date"><em>2023-01-22</em></p>
+</div>
+<div id="basics-of-bayesian-linear-regression" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Basics of Bayesian linear regression<a href="index.html#basics-of-bayesian-linear-regression" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="bayes-theorem" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> Bayes’ theorem<a href="index.html#bayes-theorem" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="theorem">
+<p><span id="thm:bayes" class="theorem"><strong>Theorem 1.1  (Bayes' theorem) </strong></span>For events <span class="math inline">\(A, B\)</span> and <span class="math inline">\(P(B) \neq 0\)</span>, we have</p>
+<p><span class="math display">\[P(A\mid B) = \frac{P(B \mid A) P(A)}{P(B)}\]</span></p>
+</div>
+<p>We denote <span class="math inline">\(U\)</span> as unknown parameters and <span class="math inline">\(K\)</span> as known parameters. We call <span class="math inline">\(P(U)\)</span> prior and <span class="math inline">\(P(K|U)\)</span> likelihood. The Bayes’ theorem gives us the posterior distribution of unknown parameters given the known parameters
+<span class="math display">\[ P(U \mid K) \propto P(U) \cdot P(K \mid U)\]</span></p>
+<p>Let <span class="math inline">\(K = \left\{y_{n \times 1}, X_{n \times p} \right\}\)</span> and assume <span class="math inline">\(y \sim N\left( X \beta, \sigma^{2} V\right)\)</span>, where <span class="math inline">\(V\)</span> is known and <span class="math inline">\(U = \left\{\beta, \sigma^{2}\right\}\)</span> is unknown. The likelihood is given by</p>
+<p><span class="math display">\[\begin{align}
+P(K \mid U)=N\left(y \mid X \beta, \sigma^{2} V\right)
+\end{align}\]</span></p>
+</div>
+<div id="normal-inverse-gamma-nig-prior" class="section level2 hasAnchor" number="1.2">
+<h2><span class="header-section-number">1.2</span> Normal Inverse-Gamma (NIG) prior<a href="index.html#normal-inverse-gamma-nig-prior" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="joint-distribution-of-nig-prior" class="section level3 hasAnchor" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Joint distribution of NIG prior<a href="index.html#joint-distribution-of-nig-prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="definition">
+<p><span id="def:NIG" class="definition"><strong>Definition 1.1  (Normal Inverse-Gamma Distribution) </strong></span>Suppose
+<span class="math display">\[
+\begin{aligned}
+&amp; x \mid \sigma^2, \mu, M \sim \text{N}(\mu,\sigma^2 M) \\
+&amp; \sigma^2 \mid \alpha, \beta \sim \text{IG}(\alpha,\beta)
+\end{aligned}
+\]</span>
+Then <span class="math inline">\((x,\sigma^2)\)</span> has a Normal-Inverse-Gamma distribution, denoted as <span class="math inline">\((x,\sigma^2) \sim \text{NIG}(\mu,M,\alpha,\beta)\)</span>.</p>
+</div>
+<p>We use a Normal Inverse-Gamma prior for <span class="math inline">\((\beta, \sigma^2)\)</span></p>
+<p><span class="math display">\[\begin{align}
+    P(\beta, \sigma^{2})
+    &amp;= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \\
+    &amp;= IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \cdot N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \\
+    &amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi)^{\frac{p}{2}}\left|\sigma^{2} M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+    &amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(Q(x, m, M)=(x-m)^{\top} M^{-1} (x-m)\)</span></p>
+<p>Note: the Inverse-Gamma (IG) distribution has a relationship with Gamma distribution. <span class="math inline">\(X \sim Gamma(\alpha, \beta)\)</span>, the density function of <span class="math inline">\(X\)</span> is <span class="math inline">\(f(x)=\frac{\beta^{\alpha}}{\Gamma(\alpha)} x^{\alpha-1} e^{-\beta x}\)</span>. Let <span class="math inline">\(Y=\frac{1}{X} \sim IG(\alpha, \beta)\)</span>, the density function of <span class="math inline">\(Y\)</span> is <span class="math inline">\(f(y)=\frac{\beta^{\alpha}}{\Gamma(\alpha)} x^{-\alpha-1} e^{-\frac{\beta}{x}}\)</span>.</p>
+</div>
+<div id="marginal-distribution-of-nig-prior" class="section level3 hasAnchor" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Marginal distribution of NIG prior<a href="index.html#marginal-distribution-of-nig-prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>As for marginal priors, we can can get it by integration</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(\sigma^2) &amp; = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\beta=I G\left(\sigma^{2} \mid a_{0}, b_{0}\right) \\
+P(\beta) &amp; = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\sigma^{2}=t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \\
+\end{aligned}
+\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p><span class="math display">\[\begin{align}
+    P\left(\sigma^{2} \right) &amp;= \int NIG\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\beta \\
+    &amp;=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \int N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \  d\beta \\
+    &amp;=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right)
+\end{align}\]</span></p>
+<p><span class="math display">\[\begin{align}
+P(\beta ) &amp;=\int NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\sigma^{2} \\
+&amp;= \int \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \  d\sigma^{2} \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1} e^{-\frac{1}{\sigma^{2}}(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right))} \  d\sigma^{2} \\
+&amp; \quad (\text{let } u = \frac{1}{\sigma^2}, \left|d\sigma^{2}\right|=\frac{1}{u^2} d u) \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+u^{a_{0}+\frac{p}{2}+1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right)) u } \frac{1}{u^2} \  du \\
+&amp;= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int
+u^{a_{0}+\frac{p}{2}-1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right)) u} \  du \\
+&amp; \quad (\text{by Gamma integral function:} \int x^{\alpha - 1} exp^{-\beta x} dx = \frac{\Gamma(\alpha)}{\beta^{\alpha}}) \\
+&amp;= \frac{b_{0}^{a_{0}} }{\Gamma\left(a_{0}\right)(2 \pi)^\frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}} \frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left[b_{0}+\frac{1}{2} Q(\beta,m_0,M_0)\right]^{\left(a_{0}+\frac{p}{2}\right)}} \\
+&amp; = \frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right)}{\Gamma\left(a_{0}\right)(2 \pi)^ \frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}}
+\left[b_0(1+\frac{1}{2 b_0} Q(\beta,m_0,M_0))\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; = \frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right) b_0^{- \left( a_0+\frac{p}{2}\right)}}{\Gamma\left(a_{0}\right)(2 \pi)^ \frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}}
+\left[1+\frac{1}{2 b_0} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right) \right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 \pi \right)^{\frac{p}{2}} b_{0}^{\frac{p}{2}} \Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}}\left[1+\frac{1}{2 b_{0}} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right) \right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}
+{\left(2 \pi \right)^{\frac{p}{2}}\left(a_{0} \cdot \frac{b_{0}}{a_{0}}\right)^{\frac{p}{2}} \Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}} \left[1+\frac{1}{2 a_{0} \cdot \frac{b_{0}}{a_{0}}} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)}\\
+&amp; =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 a_{0} \pi\right)^{\frac{p}{2}} \Gamma\left(a_{0}\right)\left|\frac{b_{0}}{a_{0}} M\right|^{\frac{1}{2}}}\left[1+\frac{1}{2 a_{0}} \left(\beta-m_{0}\right)^{\top}\left(\frac{b_{0}}{a_{0}} M_{0}\right)^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+&amp; =t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \;
+\end{align}\]</span></p>
+</details>
+<p>Note: the density of multivariate t-distribution is given by</p>
+<p><span class="math display">\[
+t_v(\mu, \Sigma)=\frac{\Gamma\left(\frac{v+p}{2}\right)}{(v \pi)^{\frac{p}{2}} \Gamma\left(\frac{v}{2}\right)  |\Sigma|^{\frac{1}{2}}}\left[1+\frac{1}{v}(x-\mu)^{\top} \Sigma^{-1}(x-\mu)\right]^{-\frac{v+p}{2}}
+\]</span></p>
+</div>
+</div>
+<div id="posterior-distribution" class="section level2 hasAnchor" number="1.3">
+<h2><span class="header-section-number">1.3</span> Posterior distribution<a href="index.html#posterior-distribution" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The posterior distribution of <span class="math inline">\((\beta, \sigma^2)\)</span> is given by</p>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) = NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1}, b_{1}\right) \;
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}
+M_{1} &amp;= (M_{0}^{-1}+X^{\top} V^{-1} X)^{-1} \;; \\
+m_{1}&amp;=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&amp;=a_{0}+\frac{p}{2} \;; \\
+b_{1}&amp;=b_{0}+\frac{c^{\ast}}{2}= b_{0}+\frac{1}{2}\left(m_{0}^{\top} M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;.
+\end{align}\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p><span class="math display">\[\begin{align}\label{eq:post_dist}
+P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto NIG\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \cdot N\left(y \mid X \beta, \sigma^{2} V\right) \nonumber\\
+&amp; \propto IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \cdot N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \cdot N\left(y \mid X \beta, \sigma^{2} V\right) \nonumber\\
+&amp; \propto \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}}
+\frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)}
+\frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| V\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(y, X \beta, V\right)} \nonumber\\
+&amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}}{\sigma^{2}}}
+e^{-\frac{1}{2 \sigma^{2}} (Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right))}\;
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}\label{eq:multivariate_completion_square}
+Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right) &amp;= (\beta - m_{0})^{\top}M_{0}^{-1}(\beta - m_{0}) + (y - X\beta)^{\top}V^{-1}(y - X\beta)\; \nonumber\\
+&amp;= \beta^{\top}M_{0}^{-1}\beta - 2\beta^{\top}M_{0}^{-1}m_{0} + m_{0}^{\top}M_{0}^{-1}m_{0} \nonumber\\
+  &amp;\qquad + \beta^{\top}X^{\top}V^{-1}X\beta - 2\beta^{\top} X^{\top}V^{-1}y + y^{\top}V^{-1}y \nonumber\\
+  &amp;= \beta^{\top} \left(M_{0}^{-1} + X^{\top}V^{-1}X\right) \beta - 2\beta^{\top}\left(M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\right) \nonumber\\
+  &amp;\qquad + m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y \nonumber \\
+  &amp;= \beta^{\top}M_{1}^{-1}\beta - 2\beta^{\top} m_{1} + c\nonumber\\
+  &amp;= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) - m_{1}^{\top}M_{1}m_{1} +c \nonumber\\   
+  &amp;= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) +c^{\ast}\;
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(M_{1}\)</span> is a symmetric positive definite matrix, <span class="math inline">\(m_{1}\)</span> is a vector, and <span class="math inline">\(c\)</span> &amp; <span class="math inline">\(c^{\ast}\)</span> are scalars given by</p>
+<p><span class="math display">\[\begin{align}
+M_{1} &amp;= (M_{0}^{-1} + X^{\top}V^{-1}X)^{-1}\;; \\
+m_{1} &amp;= M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\;; \\
+c &amp;= m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y\;; \\
+  c^{\ast} &amp;= c - m^{\top}Mm = m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y - m_{1}^{\top}M_{1}m_{1}\; .
+\end{align}\]</span></p>
+<p>Note: <span class="math inline">\(M_{1}\)</span>, <span class="math inline">\(m_{1}\)</span> and <span class="math inline">\(c\)</span> do not depend upon <span class="math inline">\(\beta\)</span>.</p>
+<p>Then, we have</p>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) &amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}}{\sigma^{2}}}
+e^{-\frac{1}{2 \sigma^{2}} ((\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) +c^{\ast})}\\
+&amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}}
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})}\\
+&amp; \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1} e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}}
+(\frac{1}{\sigma^2})^{\frac{p}{2}}
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})}\\
+&amp;= IG\left(\sigma^{2} \mid a_{0}+\frac{p}{2}, b_{0}+\frac{c^{\ast}}{2} \right) \cdot N\left(\beta \mid M_{1}m_{1}, \sigma^{2} M_{1}\right) \\
+&amp;= IG\left(\sigma^{2} \mid a_{1}, b_{1} \right) \cdot N\left(\beta \mid M_{1}m_{1}, \sigma^{2} M_{1}\right) \\
+&amp;= NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1}, b_{1}\right) \;
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}
+M_{1} &amp;= (M_{0}^{-1}+X^{\top} V^{-1} X)^{-1} \;; \\
+m_{1}&amp;=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&amp;=a_{0}+\frac{p}{2} \;; \\
+b_{1}&amp;=b_{0}+\frac{c^{\ast}}{2}= b_{0}+\frac{1}{2}\left(m_{0}^{\top} M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;.
+\end{align}\]</span></p>
+</details>
+<p>From derivation in marginal priors, the marginal posterior distributions can be easily get by updating corresponding parameters</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;P\left(\sigma^{2} \mid y\right)=I G\left(\sigma^{2} \mid a_{1}, b_{1}\right) \\
+&amp;P(\beta \mid y)=t_{2a_1}(M_1m_1, \frac{b_1}{a_1}M_1)
+\end{aligned}
+\]</span></p>
+</div>
+<div id="bayesian-prediction" class="section level2 hasAnchor" number="1.4">
+<h2><span class="header-section-number">1.4</span> Bayesian prediction<a href="index.html#bayesian-prediction" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Assume <span class="math inline">\(V=I_{n}\)</span>. Let <span class="math inline">\(\tilde{y}\)</span> denote an <span class="math inline">\(\tilde{n}\times 1\)</span> vector of outcomes. <span class="math inline">\(\tilde{X}\)</span> is corresponding predictors. We seek to predict <span class="math inline">\(\tilde{y}\)</span> based upon <span class="math inline">\(y\)</span></p>
+<p><span class="math display">\[\begin{align}
+P(\tilde{y} \mid y)
+&amp;= t_{2a_1}(\tilde{X} M_1 m_1, \frac{b_1}{a_1}(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \;
+\end{align}\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)
+&amp;=P\left(\beta, \sigma^{2} \mid y\right) \cdot P\left(\tilde{y} \mid \beta, \sigma^{2}, y\right) \\
+&amp; \propto P\left(\beta, \sigma^{2}\right) \cdot P\left(y \mid \beta, \sigma^{2}\right) \cdot P\left(\tilde{y} \mid \beta, \sigma^{2}, y\right) \\
+&amp;= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right)
+\cdot N\left(y \mid X \beta, \sigma^{2} I_{n}\right)
+\cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \\
+&amp;= NIG \left(\beta, \sigma^{2} \mid M_{1} m_{1}, M_{1}, a_{1}, b_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \\
+&amp;= IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}} \right) \;
+\end{align}\]</span></p>
+<p>Then we can calculate posterior predictive density <span class="math inline">\(P(\tilde{y} \mid y)\)</span> from <span class="math inline">\(P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)\)</span></p>
+<p><span class="math display">\[\begin{align}
+P(\tilde{y} \mid y)
+&amp;=\iint P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right) \  d\beta \  d\sigma^{2} \\
+&amp;=\iint IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta \  d\sigma^{2} \\
+&amp;=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \int N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta \  d\sigma^{2} \\
+\end{align}\]</span></p>
+<p>As for <span class="math inline">\(\int N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta\)</span>, we provide an easy way to derive it avoiding any integration at all. Note that we can write the above model as</p>
+<p><span class="math display">\[\begin{align}
+\tilde{y} &amp;= \tilde{X} \beta + \tilde{\epsilon}, \text{ where } \tilde{\epsilon} \sim N(0,\sigma^2 I_{\tilde{n}}) \\
+\beta &amp;= M_{1} m_{1} + \epsilon_{\beta \mid y}, \text{ where } \epsilon_{\beta \mid y} \sim N(0,\sigma^2M_{1})
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(\tilde{\epsilon}\)</span> and <span class="math inline">\(\epsilon_{\beta \mid y}\)</span> are independent of each other. It then follows that</p>
+<p><span class="math display">\[\begin{align}
+\tilde{y} &amp;= \tilde{X} M_{1} m_{1} + \tilde{X} \epsilon_{\beta \mid y} + \tilde{\epsilon}
+\sim N(\tilde{X} M_{1} m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top}))
+\end{align}\]</span></p>
+<p>As a result</p>
+<p><span class="math display">\[\begin{align}
+P(\tilde{y} \mid y)
+&amp;=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N(\tilde{X} M_{1} m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \  d\sigma^{2} \\
+&amp;= t_{2a_1}(\tilde{X} M_1 m_1, \frac{b_1}{a_1}(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \;
+\end{align}\]</span></p>
+</details>
+</div>
+<div id="sampling-process" class="section level2 hasAnchor" number="1.5">
+<h2><span class="header-section-number">1.5</span> Sampling process<a href="index.html#sampling-process" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We can get the joint posterior density <span class="math inline">\(P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)\)</span> by sampling process</p>
+<ol style="list-style-type: decimal">
+<li><p>Draw <span class="math inline">\(\hat{\sigma}_{(i)}^{2}\)</span> from <span class="math inline">\(I G\left(a_{1}, b_{1}\right)\)</span></p></li>
+<li><p>Draw <span class="math inline">\(\hat{\beta}_{(i)}\)</span> from <span class="math inline">\(N\left(M_{1} m_{1}, \hat{\sigma}_{(i)}^{2} M_{1}\right)\)</span></p></li>
+<li><p>Draw <span class="math inline">\(\tilde{y}_{(i)}\)</span> from <span class="math inline">\(N\left(\tilde{X} \hat{\beta}_{(i)}, \hat{\sigma}_{(i)}^{2}I_{\tilde{n}}\right)\)</span></p></li>
+</ol>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="updating-form-of-the-posterior-distribution.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/index.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

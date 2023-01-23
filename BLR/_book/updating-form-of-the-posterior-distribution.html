@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Updating form of the posterior distribution | Bayesian Linear Regression</title>
+  <meta name="description" content="This is a tutorial for Bayesian Linear Regressione." />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Updating form of the posterior distribution | Bayesian Linear Regression" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This is a tutorial for Bayesian Linear Regressione." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Updating form of the posterior distribution | Bayesian Linear Regression" />
+  
+  <meta name="twitter:description" content="This is a tutorial for Bayesian Linear Regressione." />
+  
+
+<meta name="author" content="authors" />
+
+
+<meta name="date" content="2023-01-22" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Bayesian Linear Regression</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Basics of Bayesian linear regression</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#bayes-theorem"><i class="fa fa-check"></i><b>1.1</b> Bayes’ theorem</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#normal-inverse-gamma-nig-prior"><i class="fa fa-check"></i><b>1.2</b> Normal Inverse-Gamma (NIG) prior</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#joint-distribution-of-nig-prior"><i class="fa fa-check"></i><b>1.2.1</b> Joint distribution of NIG prior</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#marginal-distribution-of-nig-prior"><i class="fa fa-check"></i><b>1.2.2</b> Marginal distribution of NIG prior</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#posterior-distribution"><i class="fa fa-check"></i><b>1.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#bayesian-prediction"><i class="fa fa-check"></i><b>1.4</b> Bayesian prediction</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#sampling-process"><i class="fa fa-check"></i><b>1.5</b> Sampling process</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html"><i class="fa fa-check"></i><b>2</b> Updating form of the posterior distribution</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html#method-1-sherman-woodbury-morrison-identity"><i class="fa fa-check"></i><b>2.1</b> Method 1: Sherman-Woodbury-Morrison identity</a></li>
+<li class="chapter" data-level="2.2" data-path="updating-form-of-the-posterior-distribution.html"><a href="updating-form-of-the-posterior-distribution.html#method-2-distribution-theory"><i class="fa fa-check"></i><b>2.2</b> Method 2: distribution theory</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Bayesian Linear Regression</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="updating-form-of-the-posterior-distribution" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Updating form of the posterior distribution<a href="updating-form-of-the-posterior-distribution.html#updating-form-of-the-posterior-distribution" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Assume <span class="math inline">\(y \sim N\left( X \beta, \sigma^{2} V\right)\)</span> and <span class="math inline">\(P(\beta, \sigma^{2}) = NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right)\)</span>, the posterior distribution is given by</p>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) = NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1}, b_{1}\right) \;
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}
+M_{1} &amp;= (M_{0}^{-1}+X^{\top} V^{-1} X)^{-1} \;; \\
+m_{1}&amp;=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&amp;=a_{0}+\frac{p}{2} \;; \\
+b_{1}&amp;= b_{0}+\frac{1}{2}\left(m_{0}^{\top} M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;.
+\end{align}\]</span></p>
+<p>We will use two ways to calculate <span class="math inline">\(M_1\)</span>.</p>
+<div id="method-1-sherman-woodbury-morrison-identity" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Method 1: Sherman-Woodbury-Morrison identity<a href="updating-form-of-the-posterior-distribution.html#method-1-sherman-woodbury-morrison-identity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>To calculate <span class="math inline">\(M_1\)</span>, we can utilize the well-known <a href="https://en.wikipedia.org/wiki/Woodbury_matrix_identity">Sherman-Woodbury-Morrison identity</a> in matrix algebra
+<span class="math display">\[\begin{equation}\label{ShermanWoodburyMorrison}
+\left(A + BDC\right)^{-1} = A^{-1} - A^{-1}B\left(D^{-1}+CA^{-1}B\right)^{-1}CA^{-1}
+\end{equation}\]</span>
+where <span class="math inline">\(A\)</span> and <span class="math inline">\(D\)</span> are square matrices that are invertible and <span class="math inline">\(B\)</span> and <span class="math inline">\(C\)</span> are rectangular (square if <span class="math inline">\(A\)</span> and <span class="math inline">\(D\)</span> have the same dimensions) matrices such that the multiplications are well-defined. This identity is easily verified by multiplying the right hand side with <span class="math inline">\(A + BDC\)</span> and simplifying to reduce it to the identity matrix.</p>
+<p><span class="math display">\[
+\begin{aligned}
+M_1 &amp; = (M_{0}^{-1} + X^{\top}V^{-1}X)^{-1} \\
+&amp; = M_0-M_0 X^{\top}\left(V+X M_0 X^{\top}\right)^{-1} X M_0 \\
+&amp; = M_0-M_0 X^{\top} Q^{-1} X M_0
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(Q = V + X M_0 X^{\top}\)</span></p>
+<p>We can show that
+<span class="math display">\[
+\begin{align}
+M_1 m_1 &amp; =m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \;.
+\end{align}
+\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p><span class="math display">\[\begin{align}
+  M_1 m_1 &amp; = \left(M_0^{-1}+X^{\top} V^{-1} X\right)^{-1} m_1 \\
+  &amp; = [M_0-M_0 X^{\top}\left(V+X M_0 X^{\top}\right)^{-1} X M_0]m_1 \\
+  &amp; = (M_0-M_0 X^{\top} Q^{-1} X M_0) m_1 \\
+  &amp; = (M_0-M_0 X^{\top} Q^{-1} X M_0)(M_0^{-1} m_0+X^{\top} V^{-1} y) \\
+  &amp; = m_0+M_0 X^{\top} V^{-1} y-M_0 X^{\top} Q^{-1} X m_0 - M_0 X^{\top} Q^{-1} X M_0 X^{\top} V^{-1} y \\
+  &amp; = m_0+M_0 X^{\top}\left(I-Q^{-1} X M_0 X^{\top}\right) V^{-1} y - M_0 X^{\top} Q^{-1} X m_0 \\
+  &amp; = m_0+M_0 X^{\top} Q^{-1}\left(Q-X M_0 X^{\top}\right)V^{-1} y - M_0 X^{\top} Q^{-1} X m_0 \\
+  &amp; \left(\text { since } Q=V+X M_0 X^{\top}\right) \\
+  &amp; = m_0+M_0 X^{\top} Q^{-1}(V) V^{-1} y-M_0 X^{\top} Q^{-1} X m_0 \\
+  &amp; = m_0+M_0 X^{\top} Q^{-1} y-M_0 X^{\top} Q^{-1} X m_0 \\
+  &amp; = m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  \end{align}\]</span></p>
+</details>
+<p>Furthermore, we can simplify that
+<span class="math display">\[
+\begin{align}
+m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} M_1 m_1 &amp; = \left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \;.
+\end{align}
+\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p><span class="math display">\[\begin{align}
+  m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} M_1 m_1 &amp; = m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} [m_0+M_0 X^{\top} Q^{-1} (y - X m_0)] \\
+  &amp; = m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y-m_1^{\top} m_0 - m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; = m_0^{\top} M_0^{-1} m_0+y^{\top} V^{-1} y -m_0^{\top}\left(M_0^{-1} m_0+X^{\top} V^{-1} y\right) \\
+  &amp; \qquad \qquad \qquad - m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; = y^{\top} V^{-1} y-y^{\top} V^{-1} X m_0 - m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; = y^{\top} V^{-1}\left(y-X m_0 \right)-m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\underbrace{m_1^{\top} M_0 X^{\top} Q^{-1}\left(y-X m_0\right)}_{\substack{\text { simplify from left to right }}} \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(M_0 m_1\right)^{\top} X^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(m_0+M_0 X^{\top} V^{-1} y\right)^{\top} X^{\top} Q^{-1}\left(y-m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-\left(X m_0+X M_0 X^{\top} V^{-1} y\right)^{\top} Q^{-1}\left(y-X m_0\right)\\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -\left(Q^{-1} X m_0+Q^{-1}\left(X M_0 X^{\top}\right)V^{-1} y\right)\left(y-X m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-[Q^{-1} X m_0+Q^{-1}(Q-V) V^{-1} y]^{\top}(y-X m_0) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -\left(Q^{-1} X m_0+V^{-1} y- Q^{-1} y \right)^{\top}\left(y-X m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right) -[V^{-1} y+Q^{-1}\left(X m_0-y\right)]^{\top}\left(y-X m_0\right) \\
+  &amp; =y^{\top} V^{-1}\left(y-X m_0\right)-y^{\top} V^{-1}\left(y-X m_0\right) +\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \\
+  &amp; =\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \\
+  \end{align}\]</span></p>
+</details>
+<p>So, we get the following updating form of the posterior distribution from Bayesian linear regression</p>
+<p><span class="math display">\[
+\begin{aligned}
+P\left(\beta, \sigma^{2} \mid y\right) = NIG\left(\beta, \sigma^{2} \mid \tilde{m}_1, \tilde{M}_1, a_{1}, b_{1}\right) \;
+\end{aligned}
+\]</span>
+where</p>
+<p><span class="math display">\[
+\begin{aligned}
+\tilde{m}_1 &amp; =M_1 m_1=m_0+M_0 X^{\top} Q^{-1}\left(y-X m_0\right) \\
+\tilde{M}_1 &amp; =M_1=M_0-M_0 X^{\top} Q^{-1} X M_0 \\
+a_1 &amp; =a_0+\frac{p}{2} \\
+b_1 &amp; =b_0+\frac{1}{2}\left(y-X m_0\right)^{\top} Q^{-1}\left(y-X m_0\right) \\
+Q &amp; =V+X M_0 X^{\top}
+\end{aligned}
+\]</span></p>
+</div>
+<div id="method-2-distribution-theory" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Method 2: distribution theory<a href="updating-form-of-the-posterior-distribution.html#method-2-distribution-theory" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Previously, we got the Bayesian Linear Regression Updater using <a href="https://en.wikipedia.org/wiki/Woodbury_matriX_identity">Sherman-Woodbury-Morrison identity</a>. Here, we will derive the results without resorting to it. The model is given by
+<span class="math display">\[\begin{align}
+&amp; y=X \beta+\epsilon , \quad \epsilon \sim N\left(0, \sigma^2 V\right) ; \\
+&amp; \beta=m_0+\omega , \quad \omega \sim N\left(0, \sigma^2 M_0\right) ; \\
+&amp; \sigma^2 \sim I G\left(a_0, b_0\right) \;.
+\end{align}\]</span></p>
+<p>This corresponds to the posterior distribution</p>
+<p><span class="math display">\[\begin{align}
+P\left(\beta, \sigma^2 \mid y\right) \propto I G\left(\sigma^2 \mid a_0, b_0\right) &amp; \times N\left(\beta \mid m_0, \sigma^2 M_0\right) \times N\left(y \mid X \beta, \sigma^2 V\right) \;.
+\end{align}\]</span></p>
+<p>We will derive <span class="math inline">\(P\left(\sigma^2 \mid y\right)\)</span> and <span class="math inline">\(P\left(\beta \mid \sigma^2, y\right)\)</span> in a form that will reflect updates from the prior to the posterior.</p>
+<p>Integrating out <span class="math inline">\(\beta\)</span> from the model is equivalent to substituting <span class="math inline">\(\beta\)</span> from its prior model. Thus, <span class="math inline">\(P\left(y \mid \sigma^2\right)\)</span> is derived simply from
+<span class="math display">\[\begin{align}
+y &amp;=X \beta+\epsilon \\
+&amp;=X\left(m_0+\omega\right)+\epsilon \\
+&amp;=X m_0 + X \omega + \epsilon \\
+&amp; =X m_0+ \eta \;, \\
+\end{align}\]</span></p>
+<p>where
+<span class="math display">\[\begin{align}
+&amp; \eta = X \omega + \epsilon \sim N\left(0, \sigma^2Q\right) \; ; \\
+&amp; Q=X M_0 X^{\top}+V \; . \\
+\end{align}\]</span></p>
+<p>Therefore,
+<span class="math display">\[\begin{align}
+y \mid \sigma^2 \sim N\left(X m_0, \sigma^2 Q\right) \; .\\
+\end{align}\]</span></p>
+<p>The posterior distribution is given by:
+<span class="math display">\[\begin{align}
+P\left(\sigma^2 \mid y\right) &amp; \propto P\left(\sigma^2\right) P\left(y \mid \sigma^2\right) \\
+&amp; =I G\left(\sigma^2 \mid a_0, b_0\right) \times N\left(y \mid X m_0, \sigma^2 Q\right) \\
+&amp; \propto\left(\frac{1}{\sigma^2}\right)^{a_0+1} e^{-\frac{b_0} {\sigma^2} \times\left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}} e^{-\frac{1}{2 \sigma^2}}\left(y-Xm_0\right)^{\top} Q^{-1}\left(y-Xm_0\right)} \\
+&amp; \propto\left(\frac{1}{\sigma^2}\right)^{a_0+\frac{p}{2}+1} e^{-\frac{1}{\sigma^2}\left\{b_0+\frac{1}{2}\left(y-Xm_0\right)^{\top} Q^{-1}\left(y-Xm_0\right)\right.} \\
+&amp; \propto IG \left(\sigma^2 \mid a_1, b_1\right) \; ,
+\end{align}\]</span></p>
+<p>where
+<span class="math display">\[\begin{align}
+&amp; a_1 = a_0 + \frac{p}{2} ; \\
+&amp; b_1 = b_0 + \frac{1}{2} (y-Xm_0)^{\top} Q^{-1} \left(y-Xm_0\right) \; .
+\end{align}\]</span></p>
+Next, we turn to <span class="math inline">\(P\left(\beta \mid \sigma^2, y\right)\)</span>.
+Note that
+<span class="math display">\[
+\left[\begin{array}{l}
+y \\
+\beta
+\end{array}\right] \mid \sigma^2 \sim N\left(\left[\begin{array}{l}
+Xm_0 \\
+m_0
+\end{array}\right], \quad \sigma^2 \left[\begin{array}{cc}
+Q &amp; X M_0 \\
+M_0 X^{\top} &amp; M_0
+\end{array}\right]\right) \; .
+\]</span>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p>where we have used the facts</p>
+<p><span class="math display">\[
+  \begin{aligned}
+  &amp; E[y \mid \sigma^2] = Xm_0 \; ;\\
+  &amp; E[\beta \mid \sigma^2] = m_0 \; ; \\
+  &amp; \operatorname{Var}\left(y \mid \sigma^2\right)=\sigma^2 Q \; ; \\
+  &amp; \operatorname{Var}\left(\beta \mid \sigma^2\right)=\sigma^2 M_0 \; ; \\
+  \end{aligned}
+  \]</span></p>
+<p><span class="math display">\[
+  \begin{aligned}
+  \operatorname{Cov}\left(y, \beta \mid \sigma^2\right) &amp;= \operatorname{Cov}\left(X \beta+\epsilon, \beta \mid \sigma^2\right) \\
+  &amp; =\operatorname{Cov}\left(X\left(m_0+\omega\right)+\epsilon, m_0+\omega \mid \sigma^2\right) \\
+  &amp; =\operatorname{Cov}\left(X \omega, \omega \mid \sigma^2\right) \\
+  &amp; \quad \text {(Since } m_0 \text { is constant and } \operatorname{Cov}(\omega, \epsilon)=0) \\
+  &amp; =\sigma^2 X M_0 \; .
+  \end{aligned}
+  \]</span></p>
+</details>
+<p>From the expression of a conditional distribution derived from a multivariate Gaussian, we obtain
+<span class="math display">\[
+\beta \mid \sigma^2, y \sim N\left(\tilde{m}_1, \sigma^2 \tilde{M}_1\right) \;,
+\]</span></p>
+<p>where
+<span class="math display">\[\begin{align}
+&amp; \tilde{m}_1=E\left[\beta \mid \sigma^2, y\right]=m_0+M_0 X^{\top} Q^{-1}\left(y-X{m_0}\right) \; ;\\
+&amp; \tilde{M}_1=M_0-M_0 X^{\top} Q^{-1} X M_0 \; . \\
+\end{align}\]</span></p>
+<details>
+<summary>
+Click to show or hide details
+</summary>
+<p>Note:</p>
+<p><span class="math display">\[\begin{align}
+&amp; \left[\begin{array}{l}
+X_1 \\
+X_2
+\end{array}\right] \sim N\left(\left[\begin{array}{l}
+\mu_1 \\
+\mu_2
+\end{array}\right],\left[\begin{array}{ll}
+\Sigma_{11} &amp; \Sigma_{12} \\
+\Sigma_{21} &amp; \Sigma_{22}
+\end{array}\right]\right) \text { with } \Sigma_{21} = \Sigma_{12}^{\top} \;, \\
+&amp; \Rightarrow X_2 \mid X_1  \sim N\left(\mu_{2 \cdot 1}, \Sigma_{2 \cdot 1}\right) \;, \\
+&amp; \text {where } \mu_{2 \cdot 1}= \mu_2+\Sigma_{21} \Sigma_{11}^{-1}\left(X_1-\mu_1\right) \text { and } \Sigma_{2 \cdot 1}=\Sigma_{22}-\Sigma_{21} \Sigma_{11}^{-1} \Sigma_{12} \;.
+\end{align}\]</span></p>
+</details>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/01-updating.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+thm:bayes
+def:NIG
+basics-of-bayesian-linear-regression
+bayes-theorem
+normal-inverse-gamma-nig-prior
+joint-distribution-of-nig-prior
+marginal-distribution-of-nig-prior
+posterior-distribution
+bayesian-prediction
+sampling-process
+updating-form-of-the-posterior-distribution
+method-1-sherman-woodbury-morrison-identity
+method-2-distribution-theory

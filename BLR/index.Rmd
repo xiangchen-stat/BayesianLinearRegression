@@ -1,0 +1,282 @@
+--- 
+title: "Bayesian Linear Regression"
+author: "authors"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+# url: your book url like https://bookdown.org/yihui/bookdown
+# cover-image: path to the social sharing image like images/cover.jpg
+description: |
+  This is a tutorial for Bayesian Linear Regressione.
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+---
+
+
+# Basics of Bayesian linear regression
+
+## Bayes' theorem
+::: {.theorem #bayes name="Bayes' theorem"}
+For events $A, B$ and $P(B) \neq 0$, we have
+
+$$P(A\mid B) = \frac{P(B \mid A) P(A)}{P(B)}$$
+:::
+
+
+We denote $U$ as unknown parameters and $K$ as known parameters. We call $P(U)$ prior and $P(K|U)$ likelihood. The Bayes' theorem gives us the posterior distribution of unknown parameters given the known parameters 
+$$ P(U \mid K) \propto P(U) \cdot P(K \mid U)$$
+
+Let $K = \left\{y_{n \times 1}, X_{n \times p} \right\}$ and assume $y \sim N\left( X \beta, \sigma^{2} V\right)$, where $V$ is known and $U = \left\{\beta, \sigma^{2}\right\}$ is unknown. The likelihood is given by 
+
+\begin{align}
+P(K \mid U)=N\left(y \mid X \beta, \sigma^{2} V\right)
+\end{align}
+
+## Normal Inverse-Gamma (NIG) prior
+### Joint distribution of NIG prior
+::: {.definition  #NIG name="Normal Inverse-Gamma Distribution"}
+Suppose
+$$
+\begin{aligned}
+& x \mid \sigma^2, \mu, M \sim \text{N}(\mu,\sigma^2 M) \\
+& \sigma^2 \mid \alpha, \beta \sim \text{IG}(\alpha,\beta) 
+\end{aligned}
+$$
+Then $(x,\sigma^2)$ has a Normal-Inverse-Gamma distribution, denoted as $(x,\sigma^2) \sim \text{NIG}(\mu,M,\alpha,\beta)$.
+
+:::
+
+
+We use a Normal Inverse-Gamma prior for $(\beta, \sigma^2)$
+
+\begin{align}
+    P(\beta, \sigma^{2})
+    &= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \\
+    &= IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \cdot N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \\
+    &= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi)^{\frac{p}{2}}\left|\sigma^{2} M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+    &= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+    \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \\
+\end{align}
+
+where $Q(x, m, M)=(x-m)^{\top} M^{-1} (x-m)$
+
+Note: the Inverse-Gamma (IG) distribution has a relationship with Gamma distribution. $X \sim  Gamma(\alpha, \beta)$, the density function of $X$ is $f(x)=\frac{\beta^{\alpha}}{\Gamma(\alpha)} x^{\alpha-1} e^{-\beta x}$. Let $Y=\frac{1}{X} \sim IG(\alpha, \beta)$, the density function of $Y$ is $f(y)=\frac{\beta^{\alpha}}{\Gamma(\alpha)} x^{-\alpha-1} e^{-\frac{\beta}{x}}$.
+
+### Marginal distribution of NIG prior
+As for marginal priors, we can can get it by integration
+
+$$
+\begin{aligned}
+P(\sigma^2) & = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\beta=I G\left(\sigma^{2} \mid a_{0}, b_{0}\right) \\
+P(\beta) & = \int N I G\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\sigma^{2}=t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \\
+\end{aligned}
+$$
+
+<details>
+  <summary>Click to show or hide details</summary>
+
+  
+\begin{align}
+    P\left(\sigma^{2} \right) &= \int NIG\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\beta \\
+    &=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \int N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \  d\beta \\
+    &=IG\left(\sigma^{2} \mid a_{0}, b_{0}\right)
+\end{align}
+
+\begin{align}
+P(\beta ) &=\int NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \  d\sigma^{2} \\
+&= \int \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} \frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} \  d\sigma^{2} \\
+&= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int 
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1} e^{-\frac{1}{\sigma^{2}}(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right))} \  d\sigma^{2} \\
+& \quad (\text{let } u = \frac{1}{\sigma^2}, \left|d\sigma^{2}\right|=\frac{1}{u^2} d u) \\
+&= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int 
+u^{a_{0}+\frac{p}{2}+1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right)) u } \frac{1}{u^2} \  du \\
+&= \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)(2 \pi)^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}}
+\int 
+u^{a_{0}+\frac{p}{2}-1} e^{-(b_{0}+\frac{1}{2} Q \left(\beta, m_{0}, M_{0}\right)) u} \  du \\
+& \quad (\text{by Gamma integral function:} \int x^{\alpha - 1} exp^{-\beta x} dx = \frac{\Gamma(\alpha)}{\beta^{\alpha}}) \\
+&= \frac{b_{0}^{a_{0}} }{\Gamma\left(a_{0}\right)(2 \pi)^\frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}} \frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left[b_{0}+\frac{1}{2} Q(\beta,m_0,M_0)\right]^{\left(a_{0}+\frac{p}{2}\right)}} \\
+& = \frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right)}{\Gamma\left(a_{0}\right)(2 \pi)^ \frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}} 
+\left[b_0(1+\frac{1}{2 b_0} Q(\beta,m_0,M_0))\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+& = \frac{b_0^{a_0}\Gamma\left(a_{0}+\frac{p}{2}\right) b_0^{- \left( a_0+\frac{p}{2}\right)}}{\Gamma\left(a_{0}\right)(2 \pi)^ \frac{p}{2}\left|M_{0}\right|^{\frac{1}{2}}} 
+\left[1+\frac{1}{2 b_0} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right) \right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+& =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 \pi \right)^{\frac{p}{2}} b_{0}^{\frac{p}{2}} \Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}}\left[1+\frac{1}{2 b_{0}} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right) \right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+& =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}
+{\left(2 \pi \right)^{\frac{p}{2}}\left(a_{0} \cdot \frac{b_{0}}{a_{0}}\right)^{\frac{p}{2}} \Gamma\left(a_{0}\right)|M|^{\frac{1}{2}}} \left[1+\frac{1}{2 a_{0} \cdot \frac{b_{0}}{a_{0}}} \left(\beta-m_{0}\right){\top} M_{0}^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)}\\
+& =\frac{\Gamma\left(a_{0}+\frac{p}{2}\right)}{\left(2 a_{0} \pi\right)^{\frac{p}{2}} \Gamma\left(a_{0}\right)\left|\frac{b_{0}}{a_{0}} M\right|^{\frac{1}{2}}}\left[1+\frac{1}{2 a_{0}} \left(\beta-m_{0}\right)^{\top}\left(\frac{b_{0}}{a_{0}} M_{0}\right)^{-1}\left(\beta-m_{0}\right)\right]^{-\left(a_{0}+\frac{p}{2}\right)} \\
+& =t_{2a_0}(m_0, \frac{b_0}{a_0}M_0) \;
+\end{align}
+
+</details>
+
+
+Note: the density of multivariate t-distribution is given by
+
+$$
+t_v(\mu, \Sigma)=\frac{\Gamma\left(\frac{v+p}{2}\right)}{(v \pi)^{\frac{p}{2}} \Gamma\left(\frac{v}{2}\right)  |\Sigma|^{\frac{1}{2}}}\left[1+\frac{1}{v}(x-\mu)^{\top} \Sigma^{-1}(x-\mu)\right]^{-\frac{v+p}{2}}
+$$
+
+
+## Posterior distribution
+The posterior distribution of $(\beta, \sigma^2)$ is given by
+
+\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) = NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1}, b_{1}\right) \;
+\end{align}
+
+where
+
+\begin{align}
+M_{1} &= (M_{0}^{-1}+X^{\top} V^{-1} X)^{-1} \;; \\
+m_{1}&=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&=a_{0}+\frac{p}{2} \;; \\
+b_{1}&=b_{0}+\frac{c^{\ast}}{2}= b_{0}+\frac{1}{2}\left(m_{0}^{\top} M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;. 
+\end{align}
+
+<details>
+  <summary>Click to show or hide details</summary>
+
+
+\begin{align}\label{eq:post_dist}
+P\left(\beta, \sigma^{2} \mid y\right) & \propto NIG\left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right) \cdot N\left(y \mid X \beta, \sigma^{2} V\right) \nonumber\\
+& \propto IG\left(\sigma^{2} \mid a_{0}, b_{0}\right) \cdot N\left(\beta \mid m_{0}, \sigma^{2} M_{0}\right) \cdot N\left(y \mid X \beta, \sigma^{2} V\right) \nonumber\\
+& \propto \frac{b_0^{a_0}}{\Gamma\left(a_{0}\right)}
+\left(\frac{1}{\sigma^{2}}\right)^{a_{0}+1} e^{-\frac{b_{0}}{\sigma^{2}}} 
+\frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| M_{0}\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(\beta, m_{0}, M_{0}\right)} 
+\frac{1}{(2 \pi \sigma^{2})^{\frac{p}{2}}\left| V\right|^{\frac{1}{2}}} e^{-\frac{1}{2 \sigma^{2}} Q \left(y, X \beta, V\right)} \nonumber\\
+& \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}}{\sigma^{2}}} 
+e^{-\frac{1}{2 \sigma^{2}} (Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right))}\;
+\end{align}
+
+
+where
+
+\begin{align}\label{eq:multivariate_completion_square}
+Q \left(\beta, m_{0}, M_{0}\right)+Q \left(y, X \beta, V\right) &= (\beta - m_{0})^{\top}M_{0}^{-1}(\beta - m_{0}) + (y - X\beta)^{\top}V^{-1}(y - X\beta)\; \nonumber\\
+ &= \beta^{\top}M_{0}^{-1}\beta - 2\beta^{\top}M_{0}^{-1}m_{0} + m_{0}^{\top}M_{0}^{-1}m_{0} \nonumber\\
+  &\qquad + \beta^{\top}X^{\top}V^{-1}X\beta - 2\beta^{\top} X^{\top}V^{-1}y + y^{\top}V^{-1}y \nonumber\\
+  &= \beta^{\top} \left(M_{0}^{-1} + X^{\top}V^{-1}X\right) \beta - 2\beta^{\top}\left(M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\right) \nonumber\\
+  &\qquad + m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y \nonumber \\
+  &= \beta^{\top}M_{1}^{-1}\beta - 2\beta^{\top} m_{1} + c\nonumber\\
+  &= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) - m_{1}^{\top}M_{1}m_{1} +c \nonumber\\   
+  &= (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) +c^{\ast}\;
+\end{align}
+
+where $M_{1}$ is a symmetric positive definite matrix, $m_{1}$ is a vector, and $c$ \& $c^{\ast}$ are scalars given by
+
+\begin{align}
+ M_{1} &= (M_{0}^{-1} + X^{\top}V^{-1}X)^{-1}\;; \\
+ m_{1} &= M_{0}^{-1}m_{0} + X^{\top}V^{-1}y\;; \\
+ c &= m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y\;; \\
+  c^{\ast} &= c - m^{\top}Mm = m_{0}^{\top} M_{0}^{-1}m_{0} + y^{\top}V^{-1}y - m_{1}^{\top}M_{1}m_{1}\; .
+\end{align}
+
+Note: $M_{1}$, $m_{1}$ and $c$ do not depend upon $\beta$.
+
+Then, we have
+
+\begin{align}
+P\left(\beta, \sigma^{2} \mid y\right) & \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}}{\sigma^{2}}} 
+e^{-\frac{1}{2 \sigma^{2}} ((\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1}) +c^{\ast})}\\
+& \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+p+1} e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}} 
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})}\\
+& \propto \left(\frac{1}{\sigma^{2}}\right)^{a_{0}+\frac{p}{2}+1} e^{-\frac{b_{0}+\frac{c^{\ast}}{2}}{\sigma^{2}}} 
+(\frac{1}{\sigma^2})^{\frac{p}{2}}
+e^{-\frac{1}{2 \sigma^{2}} (\beta - M_{1}m_{1})^{\top}M_{1}^{-1}(\beta - M_{1}m_{1})}\\
+&= IG\left(\sigma^{2} \mid a_{0}+\frac{p}{2}, b_{0}+\frac{c^{\ast}}{2} \right) \cdot N\left(\beta \mid M_{1}m_{1}, \sigma^{2} M_{1}\right) \\
+&= IG\left(\sigma^{2} \mid a_{1}, b_{1} \right) \cdot N\left(\beta \mid M_{1}m_{1}, \sigma^{2} M_{1}\right) \\
+&= NIG\left(\beta, \sigma^{2} \mid M_{1}m_{1}, M_{1}, a_{1}, b_{1}\right) \;
+\end{align}
+
+where
+
+\begin{align}
+M_{1} &= (M_{0}^{-1}+X^{\top} V^{-1} X)^{-1} \;; \\
+m_{1}&=M_{0}^{-1} m_{0}+X^{\top} V^{-1} y \;; \\
+a_{1}&=a_{0}+\frac{p}{2} \;; \\
+b_{1}&=b_{0}+\frac{c^{\ast}}{2}= b_{0}+\frac{1}{2}\left(m_{0}^{\top} M_{0}^{-1} m_{0}+y^{\top} V^{-1} y-m_{1}^{\top} M_{1} m_{1}\right)\;. 
+\end{align}
+
+</details>
+
+From derivation in marginal priors, the marginal posterior distributions can be easily get by updating corresponding parameters 
+
+$$
+\begin{aligned}
+&P\left(\sigma^{2} \mid y\right)=I G\left(\sigma^{2} \mid a_{1}, b_{1}\right) \\
+&P(\beta \mid y)=t_{2a_1}(M_1m_1, \frac{b_1}{a_1}M_1)
+\end{aligned}
+$$
+
+## Bayesian prediction
+Assume $V=I_{n}$. Let $\tilde{y}$ denote an $\tilde{n}\times 1$ vector of outcomes. $\tilde{X}$ is corresponding predictors. We seek to predict $\tilde{y}$ based upon $y$
+
+\begin{align}
+P(\tilde{y} \mid y) 
+&= t_{2a_1}(\tilde{X} M_1 m_1, \frac{b_1}{a_1}(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \;
+\end{align}
+
+
+<details>
+  <summary>Click to show or hide details</summary>
+
+
+\begin{align}
+P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right) 
+&=P\left(\beta, \sigma^{2} \mid y\right) \cdot P\left(\tilde{y} \mid \beta, \sigma^{2}, y\right) \\
+& \propto P\left(\beta, \sigma^{2}\right) \cdot P\left(y \mid \beta, \sigma^{2}\right) \cdot P\left(\tilde{y} \mid \beta, \sigma^{2}, y\right) \\
+&= NIG \left(\beta, \sigma^{2} \mid m_{0}, M_{0}, a_{0}, b_{0}\right)
+\cdot N\left(y \mid X \beta, \sigma^{2} I_{n}\right) 
+\cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \\
+&= NIG \left(\beta, \sigma^{2} \mid M_{1} m_{1}, M_{1}, a_{1}, b_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \\
+&= IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}} \right) \;
+\end{align}
+
+Then we can calculate posterior predictive density $P(\tilde{y} \mid y)$ from $P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)$
+
+
+\begin{align}
+P(\tilde{y} \mid y) 
+&=\iint P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right) \  d\beta \  d\sigma^{2} \\
+&=\iint IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta \  d\sigma^{2} \\
+&=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \int N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1} \right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta \  d\sigma^{2} \\
+\end{align}
+
+As for $\int N\left(\beta \mid M_{1} m_{1}, \sigma^{2} M_{1}\right) \cdot N\left(\tilde{y} \mid \tilde{X} \beta, \sigma^{2} I_{\tilde{n}}\right) \  d\beta$, we provide an easy way to derive it avoiding any integration at all. Note that we can write the above model as
+
+\begin{align}
+\tilde{y} &= \tilde{X} \beta + \tilde{\epsilon}, \text{ where } \tilde{\epsilon} \sim N(0,\sigma^2 I_{\tilde{n}}) \\
+\beta &= M_{1} m_{1} + \epsilon_{\beta \mid y}, \text{ where } \epsilon_{\beta \mid y} \sim N(0,\sigma^2M_{1})
+\end{align}
+
+where $\tilde{\epsilon}$ and $\epsilon_{\beta \mid y}$ are independent of each other. It then follows that
+
+\begin{align}
+\tilde{y} &= \tilde{X} M_{1} m_{1} + \tilde{X} \epsilon_{\beta \mid y} + \tilde{\epsilon} 
+\sim N(\tilde{X} M_{1} m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top}))
+\end{align}
+
+As a result
+
+\begin{align}
+P(\tilde{y} \mid y) 
+&=\int IG(\sigma^{2} \mid a_{1}, b_{1}) \cdot N(\tilde{X} M_{1} m_{1}, \sigma^2(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \  d\sigma^{2} \\
+&= t_{2a_1}(\tilde{X} M_1 m_1, \frac{b_1}{a_1}(I_{\tilde{n}} + \tilde{X} M_{1} \tilde{X}^{\top})) \;
+\end{align}
+
+
+</details>
+
+
+## Sampling process
+We can get the joint posterior density $P\left(\beta, \sigma^{2}, \tilde{y} \mid y\right)$ by sampling process
+
+1) Draw $\hat{\sigma}_{(i)}^{2}$ from $I G\left(a_{1}, b_{1}\right)$
+
+2) Draw $\hat{\beta}_{(i)}$ from $N\left(M_{1} m_{1}, \hat{\sigma}_{(i)}^{2} M_{1}\right)$
+
+3) Draw $\tilde{y}_{(i)}$ from $N\left(\tilde{X} \hat{\beta}_{(i)}, \hat{\sigma}_{(i)}^{2}I_{\tilde{n}}\right)$
